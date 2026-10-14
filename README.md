@@ -1,0 +1,150 @@
+Linux Bash History & Failed SSH Login Investigation Using Splunk
+
+1. Project Overview
+
+This project demonstrates practical security log analysis using Splunk, focusing on Linux Bash history artifacts and failed SSH authentication events.
+
+The objective is to investigate command-history data, review failed authentication attempts, identify potentially suspicious activity, and document findings using a structured SOC investigation approach.
+
+This project reflects practical skills relevant to SOC Analyst Level 1, security monitoring, log analysis, and incident investigation.
+
+2. Tools and Technologies
+
+- Splunk Enterprise
+- Linux Bash History
+- SSH Authentication Logs
+- Search Processing Language (SPL)
+- Linux command-line utilities
+- Security event analysis
+
+3. Investigation A: Linux Bash History Analysis
+
+Objective
+
+Review recorded Linux shell commands to understand system activity and identify commands that may require further security investigation.
+
+Evidence Observed
+
+The Splunk results contain commands such as:
+
+- "ps" — displays running processes.
+- "ls" — lists directory contents.
+- "cat" — displays file contents.
+- "find" — searches for files and directories.
+- "sudo" — runs commands with elevated privileges when authorized.
+- "history" — displays recorded shell command history.
+
+The screenshots also show commands associated with searching for files, reviewing configuration files, and examining system information.
+
+Security Analysis
+
+These commands are commonly used for legitimate system administration and troubleshooting. However, their context, sequence, user account, and surrounding events may help an analyst determine whether the activity requires further investigation.
+
+A command appearing in Bash history does not, by itself, prove malicious activity. Bash history may also be incomplete and may not include reliable timestamps.
+
+Investigation Recommendations
+
+- Identify the user account associated with the activity.
+- Review surrounding system and authentication logs.
+- Correlate relevant commands with timestamps where available.
+- Investigate unexpected access to sensitive configuration files.
+- Look for additional evidence before classifying activity as suspicious.
+
+4. Investigation B: Failed SSH Login Analysis
+
+Objective
+
+Investigate failed SSH authentication events and identify patterns that may indicate unauthorized access attempts.
+
+Evidence Observed
+
+The Splunk screenshot contains an event labelled "Failed SSH Login" with the field "auth_success: false".
+
+The event also includes fields relating to the source and destination IP addresses, authentication status, and network activity.
+
+Security Analysis
+
+A failed SSH login indicates that the recorded authentication attempt did not succeed. A single failure may result from a mistyped password or a legitimate administrative error.
+
+Repeated failures involving the same source IP, multiple usernames, or unusual activity periods may warrant further investigation. The available screenshot alone does not establish that a brute-force attack occurred.
+
+Investigation Recommendations
+
+- Identify the source IP address and destination host.
+- Review the username associated with the failed attempt.
+- Count failures by source IP and username.
+- Examine event timestamps to identify repeated attempts.
+- Check for successful SSH logins following failed attempts.
+- Escalate activity when corroborating evidence indicates a potential threat.
+
+5. Sample SPL Queries
+
+Query 1: Review Bash History Events
+
+Adapt the index and field names to match the available data.
+
+index=* "bash_history"
+| table _time host user source
+| sort - _time
+
+Query 2: Investigate Failed SSH Logins
+
+index=* "Failed SSH Login"
+| stats count by src_ip, dest_ip, username
+| sort - count
+
+Query 3: Identify Repeated Failed Attempts
+
+index=* "Failed SSH Login"
+| timechart span=15m count by src_ip
+
+These are example queries. They may require changes depending on the actual index, event format, and field names in the Splunk environment.
+
+6. Key Findings
+
+Based on the screenshots reviewed:
+
+- Bash history data containing Linux commands is available in Splunk.
+- The data includes commands that can support investigation of system activity.
+- A failed SSH authentication event is visible with "auth_success: false".
+- The available fields provide a starting point for investigating authentication activity and correlating related events.
+
+The screenshots do not independently confirm malicious activity, a successful compromise, or a brute-force attack.
+
+7. Security Recommendations
+
+- Monitor repeated SSH authentication failures.
+- Restrict SSH access to authorized users and trusted networks.
+- Use strong authentication and multi-factor authentication where supported.
+- Review privileged command execution and access to sensitive files.
+- Centralize relevant Linux and SSH logs in a SIEM.
+- Correlate events before escalating a suspected incident.
+- Document findings, evidence, and recommended actions clearly.
+
+8. Skills Demonstrated
+
+- SIEM search and log analysis using Splunk.
+- Linux Bash history investigation.
+- SSH authentication event analysis.
+- Security event correlation.
+- Initial threat investigation and risk assessment.
+- Writing structured investigation reports.
+- Developing evidence-based recommendations.
+
+9. Evidence
+
+Screenshots included in this project demonstrate:
+
+- Bash history events reviewed in Splunk.
+- Linux commands available for security investigation.
+- A failed SSH login event and its associated fields.
+
+10. Disclaimer
+
+This project uses security events and command-history data from a practical lab environment. Findings are limited to the evidence shown in the screenshots. Any suspected malicious activity must be validated through additional logs and host-level investigation.
+
+Author
+
+Cybersecurity Portfolio Project
+Focus: SOC Operations, SIEM Monitoring, Linux Security, and Incident Investigation
+Primary Tool: Splunk Enterprise
